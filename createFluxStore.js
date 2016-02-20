@@ -1,4 +1,9 @@
 import isPlainObject from 'lodash/isPlainObject'
+/**
+ * This is a copy of Redux's createStore. Only the dispatch function is modified.
+ * It passes the action Type as parameter to the callbacks registered by store.subscribe * 
+ * /
+
 
 /**
  * These are private action types reserved by Redux.
