@@ -1,10 +1,14 @@
-# Gradually Migrating from Flux to Redux
+**Gradually Migrating from Flux to Redux**
+
+This README is one way you could go about [Migrating a large flux app to Redux](http://redux.js.org/docs/recipes/MigratingToRedux.html)
+
+**Editing a flux store**
 
 Consider a flux store, [TodoStore](https://facebook.github.io/flux/docs/todo-list.html#creating-stores)
 
-While you are migrating to redux, the first step would be creating the reducer for this store. However, remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on the flux store's listeners and getter functions.
+While you are migrating to redux, the first step would be to create the reducer for this store. However, remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on the flux store's listeners and getter functions.
 
-Thus one way to go about this, is to create 2 files as follows
+Thus one way to go about this, is to split your flux store into 2 files as follows
 
 ```javascript
 // FILE: store.js
@@ -90,3 +94,10 @@ export function todos(state=initialState, action){
   }
 }
 ```
+
+With this approach,
+1. None of your components will break since the store's listeners and getters are still present
+2. Getter functions are retrieving data from your redux store.
+3. Your reducers are pure functions who are modifying state based on action.type
+4. This store can exist alongside flux stores, until you migrate them to redux stores.
+5. Finally, you could simply combine all the reducers and create a single store.
