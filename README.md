@@ -1,106 +1,79 @@
 # Gradually Migrating from Flux to Redux
 
-1. Consider a simple flux store. (Taken from https://facebook.github.io/flux/docs/todo-list.html#creating-stores)
+Consider a flux store, [TodoStore](https://facebook.github.io/flux/docs/todo-list.html#creating-stores)
+
+While you are migrating to redux, the first step would be creating the reducer for this store. However remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on flux stores.
+
+Thus one way to go about this, is to create 2 files as follows
 
 ```javascript
-//Store.js
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var EventEmitter = require('events').EventEmitter;
-var TodoConstants = require('../constants/TodoConstants');
-var assign = require('object-assign');
+// FILE: store.js
 
+//IMPORTS
+
+//CHANGE EVENTS
 var CHANGE_EVENT = 'change';
 
-var _todos = {}; // collection of todo items
+/**
+ * Keep it in migration folder. You can delete the entire migration folder when you have created all
+ * reducers.
+ */
+import {default as createFluxStore} from 'migration/createFluxStore.js';
+import {todos} from 'reducers/todos.js';
 
 /**
- * Create a TODO item.
- * @param {string} text The content of the TODO
- */
-function create(text) {
-  // Using the current timestamp in place of a real id.
-  var id = Date.now();
-  _todos[id] = {
-    id: id,
-    complete: false,
-    text: text
-  };
-}
+  * The createFluxStore is different from the original redux/createStore in 2 ways,
+  * 1. It accepts both action.type and action.actionType. It also adds the 'type' key so that your reducer  *     will work as required.
+  *
+  * 2. It passes the action['type'] as parameter to the subscribed callbacks. You can use this if you have 
+  *     emit different events based on the actionType.
+  */
 
-/**
- * Delete a TODO item.
- * @param {string} id
- */
-function destroy(id) {
-  delete _todos[id];
-}
+var todoReduxStore = createFluxStore(todos);
 
 var TodoStore = assign({}, EventEmitter.prototype, {
-
-  /**
-   * Get the entire collection of TODOs.
-   * @return {object}
-   */
   getAll: function() {
-    return _todos;
+    //Now we take data from the store.
+    return todoReduxStore.getState()['_todos'];
   },
 
   emitChange: function() {
     this.emit(CHANGE_EVENT);
   },
-
-  /**
-   * @param {function} callback
-   */
   addChangeListener: function(callback) {
     this.on(CHANGE_EVENT, callback);
   },
-
-  /**
-   * @param {function} callback
-   */
   removeChangeListener: function(callback) {
     this.removeListener(CHANGE_EVENT, callback);
   },
 
   dispatcherIndex: AppDispatcher.register(function(payload) {
     var action = payload.action;
-    var text;
-
-    switch(action.actionType) {
-      case TodoConstants.TODO_CREATE:
-        text = action.text.trim();
-        if (text !== '') {
-          create(text);
-          TodoStore.emitChange();
-        }
-        break;
-
-      case TodoConstants.TODO_DESTROY:
-        destroy(action.id);
-        TodoStore.emitChange();
-        break;
-
-      // add more cases for other actionTypes, like TODO_UPDATE, etc.
-    }
-
-    return true; // No errors. Needed by promise in Dispatcher.
+    todoReduxStore.dispatch(action);
   })
 
 });
 
-module.exports = TodoStore;
-```
-
-While you are migrating to redux, the first step would be creating the reducer for this store. Howeve,r remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on flux stores.
-
-Thus one way to go about this, is to create 2 files as follows
-
-```javascript
-//store.js
+todoReduxStore.subscribe(function(actionType){
+  /**
+  * Here you can emitChange based on the actionType.
+  */
+})
 ```
 
 Next the reducer file,
 ```javascript
-//reducer.js
+//FILE: reducer.js
+
+const initialState = {
+  '_todos':{}
+}
+
+export function todos(state=initialState, action){
+  switch(action.type){ // This will be the same as acionType. createFluxStore will ensure that.
+    //Here you will add the logic which was present in your store's dispatch Handler.
+    default:
+      return state;
+  }
+}
 ```
