@@ -2,6 +2,8 @@
 
 This README is one way you could go about [Migrating a large flux app to Redux](http://redux.js.org/docs/recipes/MigratingToRedux.html)
 
+
+
 **Editing a flux store**
 
 Consider a flux store, [TodoStore](https://facebook.github.io/flux/docs/todo-list.html#creating-stores)
@@ -96,8 +98,13 @@ export function todos(state=initialState, action){
 ```
 
 With this approach,
+
 1. None of your components will break since the store's listeners and getters are still present
+
 2. Getter functions are retrieving data from your redux store.
+
 3. Your reducers are pure functions who are modifying state based on action.type
+
 4. This store can exist alongside flux stores, until you migrate them to redux stores.
+
 5. Finally, you could simply combine all the reducers and create a single store.
