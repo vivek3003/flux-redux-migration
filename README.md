@@ -2,7 +2,7 @@
 
 Consider a flux store, [TodoStore](https://facebook.github.io/flux/docs/todo-list.html#creating-stores)
 
-While you are migrating to redux, the first step would be creating the reducer for this store. However, remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on the flux store's listeners and getApis.
+While you are migrating to redux, the first step would be creating the reducer for this store. However, remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on the flux store's listeners and getter functions.
 
 Thus one way to go about this, is to create 2 files as follows
 
