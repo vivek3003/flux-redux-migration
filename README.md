@@ -2,7 +2,7 @@
 
 Consider a flux store, [TodoStore](https://facebook.github.io/flux/docs/todo-list.html#creating-stores)
 
-While you are migrating to redux, the first step would be creating the reducer for this store. However remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on flux stores.
+While you are migrating to redux, the first step would be creating the reducer for this store. However, remeber that it is important that you keep the API provided by your store the same. This is because your components are still dependent on the flux store's listeners and getApis.
 
 Thus one way to go about this, is to create 2 files as follows
 
@@ -30,6 +30,7 @@ import {todos} from 'reducers/todos.js';
   */
 
 var todoReduxStore = createFluxStore(todos);
+//You can replace this with createStore once your components become aware of redux through store.subscribe or react-redux.
 
 var TodoStore = assign({}, EventEmitter.prototype, {
   getAll: function() {
@@ -49,7 +50,14 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 
   dispatcherIndex: AppDispatcher.register(function(payload) {
     var action = payload.action;
+    //If you are using createFluxStore
     todoReduxStore.dispatch(action);
+    //EndIf
+     
+    //If you are using createStore from Redux
+    action['type'] = action.actionType;
+    todoReduxStore.dispatch(action);
+    //EndIf
   })
 
 });
@@ -57,6 +65,7 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 todoReduxStore.subscribe(function(actionType){
   /**
   * Here you can emitChange based on the actionType.
+  * 
   */
 })
 ```
@@ -70,10 +79,14 @@ const initialState = {
 }
 
 export function todos(state=initialState, action){
-  switch(action.type){ // This will be the same as acionType. createFluxStore will ensure that.
+  // Remember your actions must have type key. createFluxStore adds actionType to the type internally.
+  switch(action.type){ 
+  
+  
     //Here you will add the logic which was present in your store's dispatch Handler.
+  
     default:
-      return state;
+     return state;
   }
 }
 ```
